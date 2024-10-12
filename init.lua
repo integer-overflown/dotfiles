@@ -14,7 +14,7 @@ vim.g.maplocalleader = " "
 require("config.lazy")
 
 -- Set the default color scheme
-vim.cmd [[colorscheme rose-pine-moon]]
+vim.cmd [[colorscheme catppuccin-macchiato]] 
 
 -- Configure keyboard maps, now that all plugins are accessible
 require("config.keymaps")
