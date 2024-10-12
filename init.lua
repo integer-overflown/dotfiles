@@ -13,15 +13,6 @@ vim.g.maplocalleader = " "
 -- Load Lazy and the plugins
 require("config.lazy")
 
--- Set the default color scheme
-vim.cmd [[colorscheme catppuccin-macchiato]] 
-
 -- Configure keyboard maps, now that all plugins are accessible
 require("config.keymaps")
-
-require("nvim-treesitter.configs").setup {
-  ensure_installed = { "c", "lua", "rust", "markdown", "cpp" },
-  highlight = { enable = true },
-  indent = { enable = true },
-}
 
