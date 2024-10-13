@@ -6,4 +6,3 @@ require("config.lazy")
 
 -- Configure keyboard maps, now that all plugins are accessible
 require("config.keymaps")
-
