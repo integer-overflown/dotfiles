@@ -1,3 +1,16 @@
+local function format()
+  vim.lsp.buf.format({
+    formatting_options = {
+      tabSize = vim.opt_local.shiftwidth:get(),
+      insertSpaces = vim.opt.expandtab:get(),
+      trimTrailingWhitespace = true,
+      insertFinalNewline = true,
+      trimFinalNewlines = true,
+    },
+    async = false,
+  })
+end
+
 return {
   "nvimtools/none-ls.nvim",
   config = function()
@@ -19,11 +32,10 @@ return {
         vim.api.nvim_create_autocmd("BufWritePre", {
           group = augroup,
           buffer = bufnr,
-          callback = function()
-            local lsp = require("ovf.lsp")
-            lsp.format()
-          end,
+          callback = format,
         })
+
+        vim.keymap.set("n", "<leader>ll", format, { buffer = bufnr })
       end,
     })
   end,
