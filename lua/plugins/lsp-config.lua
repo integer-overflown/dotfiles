@@ -16,7 +16,15 @@ return {
       require("lspconfig").lua_ls.setup({})
 
       -- setup clangd (C/C++/ObjC/ObjC++ support)
-      require("lspconfig").clangd.setup({})
+      require("lspconfig").clangd.setup({
+        cmd = {
+          "clangd",
+          "--background-index",
+          "--clang-tidy",
+          "--header-insertion=iwyu",
+          "--completion-style=bundled",
+        },
+      })
 
       -- setup rust_analyzer (Rust LSP)
       require("lspconfig").rust_analyzer.setup({})
