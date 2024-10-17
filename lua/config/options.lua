@@ -9,3 +9,5 @@ vim.opt.expandtab = true
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+vim.cmd("setlocal spell spelllang=en_us")
