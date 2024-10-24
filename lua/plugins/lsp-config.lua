@@ -28,6 +28,13 @@ return {
 
       -- setup rust_analyzer (Rust LSP)
       require("lspconfig").rust_analyzer.setup({})
+
+      vim.keymap.set(
+        "n",
+        "<leader>sh",
+        ":ClangdSwitchSourceHeader<CR>",
+        { desc = "Switch to corresponding C/C++ header/source file" }
+      )
     end,
   },
 }
