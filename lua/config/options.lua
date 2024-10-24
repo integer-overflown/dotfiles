@@ -6,6 +6,8 @@ vim.opt.number = true
 vim.opt.syntax = "on"
 -- Expand tabs to spaces
 vim.opt.expandtab = true
+-- Enable relative numbers by default
+vim.opt.relativenumber = true
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
