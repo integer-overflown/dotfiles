@@ -15,7 +15,7 @@ vim.keymap.set("n", "<leader>M", "O<ESC>", { desc = "Add a new line above the cu
 -- Neo-tree keymaps
 vim.keymap.set("n", "<leader>bf", ":Neotree toggle show buffers right<cr>", { desc = "Show currently opened buffers" })
 vim.keymap.set("n", "<leader>s", ":Neotree float git_status<cr>", { desc = "Open git status in a floating window" })
-vim.keymap.set("n", "|", ":Neotree reveal<cr>", { desc = "Open neo-tree file view" })
+vim.keymap.set("n", "|", ":Neotree toggle<cr>", { desc = "Open neo-tree file view" })
 
 -- LSP keymaps
 vim.api.nvim_create_autocmd("LspAttach", {
