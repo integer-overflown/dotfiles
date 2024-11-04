@@ -31,3 +31,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("i", "<c-p>", vim.lsp.buf.signature_help, opts)
   end,
 })
+
+vim.keymap.set("n", "<leader>or", ":OverseerRun<cr>", { desc = "Select and run an Overseer task" })
+vim.keymap.set("n", "<leader>ot", ":OverseerToggle<cr>", { desc = "Toggle Overseer task view" })
