@@ -27,7 +27,11 @@ local function configure_keymaps()
 
   vim.keymap.set("n", "<Leader>lp", function()
     dap.set_breakpoint(nil, nil, vim.fn.input("Log point message: "))
-  end, { desc = "Log point message" })
+  end, { desc = "Set log point" })
+
+  vim.keymap.set("n", "<Leader>bc", function()
+    dap.set_breakpoint(vim.fn.input("Condition: "), nil, nil)
+  end, { desc = "Set conditional breakpoint" })
 
   vim.keymap.set("n", "<Leader>dr", function()
     dap.repl.open()
