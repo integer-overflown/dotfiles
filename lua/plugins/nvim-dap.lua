@@ -93,16 +93,25 @@ local function configure_events()
 end
 
 return {
-  "mfussenegger/nvim-dap",
-  dependencies = {
-    -- Runs preLaunchTask / postDebugTask if present
-    { "stevearc/overseer.nvim",          config = true },
-    { "rcarriga/nvim-dap-ui",            dependencies = { "nvim-neotest/nvim-nio" }, config = true },
-    { "theHamsta/nvim-dap-virtual-text", config = true },
+  {
+    "mfussenegger/nvim-dap",
+    dependencies = {
+      -- Runs preLaunchTask / postDebugTask if present
+      { "stevearc/overseer.nvim",          config = true },
+      { "rcarriga/nvim-dap-ui",            dependencies = { "nvim-neotest/nvim-nio" }, config = true },
+      { "theHamsta/nvim-dap-virtual-text", config = true },
+    },
+    config = function()
+      configure_keymaps()
+      configure_adapters()
+      configure_events()
+    end,
   },
-  config = function()
-    configure_keymaps()
-    configure_adapters()
-    configure_events()
-  end,
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    config = true,
+    opts = {
+      ensure_installed = { "codelldb" },
+    },
+  },
 }
