@@ -34,3 +34,20 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 vim.keymap.set("n", "<leader>or", ":OverseerRun<cr>", { desc = "Select and run an Overseer task" })
 vim.keymap.set("n", "<leader>ot", ":OverseerToggle<cr>", { desc = "Toggle Overseer task view" })
+
+local function set_terminal_keymaps()
+  local opts = { buffer = 0 }
+  local desc = require("utils").desc
+
+  vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], desc(opts, "Exit terminal mode"))
+  vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], desc(opts, "Move to the left"))
+  vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], desc(opts, "Move to the bottom"))
+  vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], desc(opts, "Move to the top"))
+  vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], desc(opts, "Move to the right"))
+  vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], desc(opts, "Enter a command mode"))
+end
+
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "term://*",
+  callback = set_terminal_keymaps,
+})
