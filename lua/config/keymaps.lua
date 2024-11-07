@@ -3,6 +3,7 @@ local builtin = require("telescope.builtin")
 -- Telescope keymaps
 vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
 vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
+vim.keymap.set("n", "<leader>vh", builtin.help_tags, { desc = "Show and search help" })
 
 -- Utility keymaps
 vim.keymap.set("n", "<leader>fp", function()
@@ -27,7 +28,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-    vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set("n", "gr", function()
+      builtin.lsp_references()
+    end, opts)
     vim.keymap.set({ "n", "i" }, "<c-p>", vim.lsp.buf.signature_help, opts)
   end,
 })
