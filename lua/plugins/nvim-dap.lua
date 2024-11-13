@@ -172,46 +172,61 @@ end
 local function configure_defaults()
   local dap = require("dap")
   dap.defaults.fallback.terminal_win_cmd = get_terminal_buf()
+
+  local ui = require("dapui")
+
+  vim.api.nvim_create_user_command("DapUiOpen", function(config)
+    local reset = config[1] == "reset" or false
+    ui.open({ reset = reset })
+  end, {
+    nargs = "?",
+    desc = "Open DAP UI",
+    complete = function()
+      return { "reset" }
+    end,
+  })
+
+  vim.api.nvim_create_user_command("DapUiClose", function()
+    ui.close()
+  end, { desc = "Close DAP UI" })
 end
 
-local function dap_ui_options()
-  return {
-    layouts = {
-      {
-        elements = {
-          {
-            id = "scopes",
-            size = 0.25,
-          },
-          {
-            id = "breakpoints",
-            size = 0.25,
-          },
-          {
-            id = "stacks",
-            size = 0.25,
-          },
-          {
-            id = "watches",
-            size = 0.25,
-          },
+local dap_ui_options = {
+  layouts = {
+    {
+      elements = {
+        {
+          id = "scopes",
+          size = 0.25,
         },
-        position = "left",
-        size = 40,
-      },
-      {
-        elements = {
-          {
-            id = "repl",
-            size = 1,
-          },
+        {
+          id = "breakpoints",
+          size = 0.25,
         },
-        position = "bottom",
-        size = 10,
+        {
+          id = "stacks",
+          size = 0.25,
+        },
+        {
+          id = "watches",
+          size = 0.25,
+        },
       },
+      position = "left",
+      size = 40,
     },
-  }
-end
+    {
+      elements = {
+        {
+          id = "repl",
+          size = 1,
+        },
+      },
+      position = "bottom",
+      size = 10,
+    },
+  },
+}
 
 return {
   {
@@ -223,7 +238,7 @@ return {
         "rcarriga/nvim-dap-ui",
         dependencies = { "nvim-neotest/nvim-nio" },
         config = true,
-        opts = dap_ui_options(),
+        opts = dap_ui_options,
       },
       { "theHamsta/nvim-dap-virtual-text", config = true },
     },
