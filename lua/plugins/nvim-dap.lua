@@ -103,63 +103,41 @@ local function get_terminal_buf()
       return terminal_buf
     end
 
-    local prev_tab = vim.api.nvim_get_current_tabpage()
-    local prev_win = vim.api.nvim_get_current_win()
-
-    vim.cmd("tabnew")
-
-    local window = vim.api.nvim_get_current_win()
-
-    terminal_buf = vim.api.nvim_create_buf(true, true)
-
-    vim.api.nvim_set_option_value("filetype", "log", {
-      buf = terminal_buf,
+    local Terminal = require("toggleterm.terminal").Terminal
+    local term = Terminal:new({
+      display_name = "DAP process output",
+      auto_scroll = true,
+      hidden = true,
+      close_on_exit = false,
+      on_create = function(term)
+        assert(nio.api.nvim_buf_is_valid(term.bufnr), "on_create must provide a valid buffer")
+        terminal_buf = term.bufnr
+      end,
+      on_open = function()
+        vim.api.nvim_set_option_value("filetype", "log", {
+          buf = terminal_buf,
+        })
+      end,
     })
 
-    vim.api.nvim_set_option_value("modifiable", false, {
-      buf = terminal_buf,
-    })
+    -- This should trigger on_create() callback
+    term:spawn()
 
-    vim.api.nvim_win_set_buf(window, terminal_buf)
+    vim.keymap.set({ "n", "t" }, "<Leader>lg", function()
+      term:toggle()
+    end, { desc = "Open the debugee process output" })
 
-    vim.api.nvim_set_current_tabpage(prev_tab)
-    vim.api.nvim_set_current_win(prev_win)
+    assert(nio.api.nvim_buf_is_valid(terminal_buf), "buffer must be created after :spawn()")
 
-    vim.keymap.set("n", "G", function()
-      autoscroll = true
-      vim.cmd("normal! G")
-    end, { silent = true, buffer = terminal_buf })
+    -- Derived from CurSearch
+    vim.cmd("highlight LogErrorMessage guifg=#1e2030 guibg=#ed8796")
 
-    vim.api.nvim_buf_attach(terminal_buf, false, {
-      on_lines = function(_, _, _, first, _, last_in_range)
-        local active_buf = nio.api.nvim_win_get_buf(0)
-        local ns_id = -1
-
-        local lines = vim.api.nvim_buf_get_lines(active_buf, first, last_in_range, true)
-
-        for idx, line in ipairs(lines) do
-          local patterns = { "[WARNING]", "[ERROR]" }
-          local found = false
-
-          for _, pat in ipairs(patterns) do
-            if string.find(line, pat, 0, true) then
-              found = true
-              break
-            end
-          end
-
-          if not found then
-            break
-          end
-
-          local line_no = first + idx - 1
-
-          vim.api.nvim_buf_add_highlight(active_buf, ns_id, "CurSearch", line_no, 0, -1)
-        end
-
-        if autoscroll and vim.fn.mode() == "n" and active_buf == terminal_buf then
-          vim.cmd("normal! G")
-        end
+    vim.api.nvim_create_autocmd({ "TermEnter", "WinEnter" }, {
+      buffer = terminal_buf,
+      desc = "ToggleTerm highlight setup for logging",
+      callback = function()
+        -- TODO: this should potentially be made a project-local setting
+        vim.fn.matchadd("LogErrorMessage", [=[\[CRITICAL\]\|\[ERROR\]\|\[WARNING\]]=])
       end,
     })
 
