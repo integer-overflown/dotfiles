@@ -1,3 +1,6 @@
+-- Load globals
+require("config.globals")
+
 -- Configure global vim options
 require("config.options")
 
