@@ -95,7 +95,6 @@ end
 local function get_terminal_buf()
   local nio = require("nio")
 
-  local autoscroll = true
   local terminal_buf = -1
 
   local function get_buf()
