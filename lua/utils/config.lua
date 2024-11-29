@@ -10,8 +10,12 @@ local config_future
 ---@class LoggingConfig
 ---@field highlights LoggingHighlight[]
 
+---@class GitConfig
+---@field task_template string ($task) Task ID pattern, expressed as a Lua pattern.
+---@field message_template string Git message template. Can use $variables from GitConfig
 ---@class UserConfig
 ---@field logging LoggingConfig
+---@field git GitConfig
 
 --Lua language server does not seem to allow linking to nio.control.Future directly
 ---@class Future nio future, see nio.control.Future
