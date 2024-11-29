@@ -83,9 +83,13 @@ end
 ---This repeats until all keys are processed, in which case the final value is returned,
 ---or breaks early if at any iteration config becomes nil, returning nil from the function.
 ---
+---The function also does type validation based on field_type parameter.
+---If the requested field exists, but is of a wrong type, nil is returned.
+---
 ---@param config table a config table, acquired from load_config().wait()
+---@param field_type string required field type
 ---@param ... string a list of keys
-M.read_field = function(config, ...)
+M.read_field = function(config, field_type, ...)
   for _, key in ipairs({ ... }) do
     config = config[key]
 
@@ -95,6 +99,22 @@ M.read_field = function(config, ...)
     if config == nil then
       return
     end
+  end
+
+  local actual = type(config)
+
+  if actual ~= field_type then
+    local pretty_name = table.concat({ ... }, ".")
+
+    -- Async-friendly notification
+    vim.schedule(function()
+      vim.notify(
+        "Field " .. pretty_name .. "has a wrong type: expected " .. field_type .. "got: " .. actual,
+        vim.logging.levels.ERROR
+      )
+    end)
+
+    return
   end
 
   return config

@@ -129,7 +129,7 @@ local function get_terminal_buf()
     assert(nio.api.nvim_buf_is_valid(terminal_buf), "buffer must be created after :spawn()")
 
     local conf = require("utils.config")
-    local highlight = conf.read_field(conf.load_config().wait(), "logging", "highlights")
+    local highlight = conf.read_field(conf.load_config().wait(), "table", "logging", "highlights")
 
     -- Derived from CurSearch
     vim.cmd("highlight LogErrorMessage guifg=#1e2030 guibg=#ed8796")
