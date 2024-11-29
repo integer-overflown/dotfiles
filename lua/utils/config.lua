@@ -17,6 +17,50 @@ local config_future
 ---@class Future nio future, see nio.control.Future
 ---@field wait fun() wait for the completion, returning the result
 
+-- internal function: always called from the main thread
+-- this allows using vimscript functions before entering an async context
+function do_load_config()
+  local nio = require("nio")
+  local cwd = vim.fn.getcwd()
+
+  local config_dir = cwd .. "/nvim"
+
+  nio.run(function()
+    local log_conf = config_dir .. "/init.lua"
+    local file = nio.file.open(log_conf, "r")
+
+    if not file then
+      config_future.set({})
+      return
+    end
+
+    local content = file.read(nil, 0)
+    local mod_func, error = load(content)
+
+    local e = function(message)
+      config_future.set_error(message)
+
+      vim.schedule(function()
+        vim.notify(message, vim.log.levels.ERROR)
+      end)
+    end
+
+    if not mod_func then
+      e("Failed to load the project-local config: " .. error)
+      return
+    end
+
+    local mod = mod_func()
+
+    if type(mod) ~= "table" then
+      e("Config JSON must be an object")
+      return
+    end
+
+    config_future.set(mod)
+  end)
+end
+
 ---Asynchronously load a project-local user config.
 ---The config is a Lua table returned by an entry-point script,
 ---which must be located at <cwd>/nvim/init.lua.
@@ -37,43 +81,9 @@ M.load_config = function()
   end
 
   local nio = require("nio")
-  local cwd = vim.fn.getcwd()
-
-  local config_dir = cwd .. "/nvim"
-
   config_future = nio.control.future()
 
-  nio.run(function()
-    local log_conf = config_dir .. "/init.lua"
-    local file = nio.file.open(log_conf, "r")
-
-    if not file then
-      return
-    end
-
-    local content = file.read(nil, 0)
-    local mod_func, error = load(content)
-
-    local e = function(message)
-      vim.schedule(function()
-        vim.notify(message, vim.log.levels.ERROR)
-      end)
-    end
-
-    if not mod_func then
-      e("Failed to load the project-local config: " .. error)
-      return
-    end
-
-    local mod = mod_func()
-
-    if type(mod) ~= "table" then
-      e("Config JSON must be an object")
-      return
-    end
-
-    config_future.set(mod)
-  end)
+  vim.schedule(do_load_config)
 
   return config_future
 end
