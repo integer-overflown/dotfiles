@@ -6,17 +6,19 @@ return {
   {
     "williamboman/mason-lspconfig.nvim",
     opts = {
-      ensure_installed = { "lua_ls", "clangd", "rust_analyzer" },
+      ensure_installed = { "lua_ls", "clangd", "rust_analyzer", "cmake" },
     },
   },
   {
     "neovim/nvim-lspconfig",
     config = function()
+      local lspconfig = require("lspconfig")
+
       -- setup lua_ls (Lua LSP)
-      require("lspconfig").lua_ls.setup({})
+      lspconfig.lua_ls.setup({})
 
       -- setup clangd (C/C++/ObjC/ObjC++ support)
-      require("lspconfig").clangd.setup({
+      lspconfig.clangd.setup({
         cmd = {
           "clangd",
           "--background-index",
@@ -29,12 +31,15 @@ return {
       -- setup rust_analyzer (Rust LSP)
       require("lspconfig").rust_analyzer.setup({})
 
+      -- switching between .h/{.c,.cpp}
       vim.keymap.set(
         "n",
         "<leader>sh",
         ":ClangdSwitchSourceHeader<CR>",
         { desc = "Switch to corresponding C/C++ header/source file" }
       )
+
+      lspconfig.cmake.setup({})
     end,
   },
 }
