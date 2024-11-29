@@ -30,6 +30,11 @@ nio.run(function()
   local message_template = conf.read_field(conf.load_config().wait(), "string", "git", "message_template")
 
   if not (task_template and message_template) then
+    -- There's no data to auto-fill, but let's save pressing a single letter and
+    -- enter insert mode anyway
+    vim.schedule(function()
+      vim.cmd("startinsert!")
+    end)
     return
   end
 
