@@ -234,7 +234,7 @@ return {
     "mfussenegger/nvim-dap",
     dependencies = {
       -- Runs preLaunchTask / postDebugTask if present
-      { "stevearc/overseer.nvim",          config = true },
+      { "stevearc/overseer.nvim" },
       {
         "rcarriga/nvim-dap-ui",
         dependencies = { "nvim-neotest/nvim-nio" },
