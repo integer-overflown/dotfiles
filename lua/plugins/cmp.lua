@@ -45,11 +45,11 @@ local function configure_cmp()
     },
 
     sources = {
-      { name = "nvim_lsp" },
-      { name = "luasnip" },
-      { name = "buffer" },
-      { name = "nvim_lua" },
-      { name = "path" },
+      { name = "nvim_lsp", priority = 10 },
+      { name = "luasnip",  priority = 9 },
+      { name = "buffer",   priority = 1 },
+      { name = "nvim_lua", priority = 9 },
+      { name = "path",     priority = 2 },
     },
   })
 end
@@ -60,6 +60,7 @@ return {
   dependencies = {
     { "L3MON4D3/LuaSnip", version = "v2.*" },
     "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-nvim-lua",
     "hrsh7th/cmp-buffer",
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",

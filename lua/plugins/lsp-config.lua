@@ -29,7 +29,7 @@ return {
       })
 
       -- setup rust_analyzer (Rust LSP)
-      require("lspconfig").rust_analyzer.setup({})
+      lspconfig.rust_analyzer.setup({})
 
       -- switching between .h/{.c,.cpp}
       vim.keymap.set(
