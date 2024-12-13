@@ -96,6 +96,7 @@ local function get_terminal_buf()
   local nio = require("nio")
 
   local terminal_buf = -1
+  local tab_index = -1
 
   local function get_buf()
     if nio.api.nvim_buf_is_valid(terminal_buf) then
@@ -108,14 +109,20 @@ local function get_terminal_buf()
       auto_scroll = true,
       hidden = true,
       close_on_exit = false,
+      direction = "tab",
       on_create = function(term)
         assert(nio.api.nvim_buf_is_valid(term.bufnr), "on_create must provide a valid buffer")
         terminal_buf = term.bufnr
       end,
       on_open = function()
+        tab_index = vim.api.nvim_get_current_tabpage()
+
         vim.api.nvim_set_option_value("filetype", "log", {
           buf = terminal_buf,
         })
+      end,
+      on_close = function()
+        tab_index = -1
       end,
     })
 
@@ -123,6 +130,11 @@ local function get_terminal_buf()
     term:spawn()
 
     vim.keymap.set({ "n", "t" }, "<Leader>lg", function()
+      if vim.api.nvim_tabpage_is_valid(tab_index) then
+        vim.api.nvim_set_current_tabpage(tab_index)
+        return
+      end
+
       term:toggle()
     end, { desc = "Open the debugee process output" })
 
@@ -133,8 +145,6 @@ local function get_terminal_buf()
 
     -- Derived from CurSearch
     vim.cmd("highlight LogErrorMessage guifg=#1e2030 guibg=#ed8796")
-
-    vim.notify("Logging config: " .. vim.inspect(highlight))
 
     if highlight then
       vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter", "TermEnter" }, {
