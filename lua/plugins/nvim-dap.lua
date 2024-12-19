@@ -62,8 +62,12 @@ end
 
 local function configure_adapters()
   local dap = require("dap")
+  local log = require("utils.log")
+
+  log.debug("Configuring adapters")
+
   local ports = {
-    code_lldb = 13000,
+    code_lldb = require("utils.ports").get_codelldb_port(),
   }
 
   dap.adapters.codelldb = {
@@ -255,10 +259,16 @@ return {
     },
     config = function()
       -- Start loading the config asynchronously
+      -- TODO: revisit this, now that logging is async
       require("utils.config").load_config()
 
+      local nio = require("nio")
+
+      nio.run(function()
+        configure_adapters()
+      end)
+
       configure_keymaps()
-      configure_adapters()
       configure_events()
       configure_defaults()
     end,
