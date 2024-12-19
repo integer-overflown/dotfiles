@@ -24,7 +24,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 -- Configure how new splits should be opened
-vim.opt.splitright = true
+vim.opt.splitright = false
 vim.opt.splitbelow = false
 
 -- Sets how neovim will display certain whitespace characters in the editor.
