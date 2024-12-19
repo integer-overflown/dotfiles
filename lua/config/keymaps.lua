@@ -50,7 +50,7 @@ local function set_terminal_keymaps()
   local opts = { buffer = 0 }
   local desc = require("utils").desc
 
-  vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], desc(opts, "Exit terminal mode"))
+  vim.keymap.set("t", "<esc><esc>", [[<C-\><C-n>]], desc(opts, "Exit terminal mode"))
   vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], desc(opts, "Move to the left"))
   vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], desc(opts, "Move to the bottom"))
   vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], desc(opts, "Move to the top"))
