@@ -51,11 +51,10 @@ local function set_terminal_keymaps()
   local desc = require("utils").desc
 
   vim.keymap.set("t", "<esc><esc>", [[<C-\><C-n>]], desc(opts, "Exit terminal mode"))
-  vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], desc(opts, "Move to the left"))
-  vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], desc(opts, "Move to the bottom"))
-  vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], desc(opts, "Move to the top"))
-  vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], desc(opts, "Move to the right"))
   vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], desc(opts, "Enter a command mode"))
+  vim.keymap.set("t", "<C-v>", function()
+    vim.api.nvim_paste(vim.fn.getreg('"'), false, -1) -- paste from the default " register
+  end, desc(opts, "Enter a command mode"))
 end
 
 vim.api.nvim_create_autocmd("TermOpen", {
