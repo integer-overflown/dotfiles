@@ -61,3 +61,77 @@ vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "term://*",
   callback = set_terminal_keymaps,
 })
+
+local function resize_horizonally(expand)
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+
+  table.sort(wins, function(lhs, rhs)
+    local lhs_pos = vim.api.nvim_win_get_position(lhs)
+    local rhs_pos = vim.api.nvim_win_get_position(rhs)
+
+    return lhs_pos[2] < rhs_pos[2]
+  end)
+
+  local cur_win = vim.api.nvim_get_current_win()
+  local invert = cur_win == wins[#wins]
+
+  if invert then
+    if expand then
+      vim.cmd("vertical resize -5")
+    else
+      vim.cmd("vertical resize +5")
+    end
+  else
+    if expand then
+      vim.cmd("vertical resize +5")
+    else
+      vim.cmd("vertical resize -5")
+    end
+  end
+end
+
+local function resize_vertically(expand)
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+
+  table.sort(wins, function(lhs, rhs)
+    local lhs_pos = vim.api.nvim_win_get_position(lhs)
+    local rhs_pos = vim.api.nvim_win_get_position(rhs)
+
+    return lhs_pos[1] < rhs_pos[1]
+  end)
+
+  local cur_win = vim.api.nvim_get_current_win()
+  local invert = cur_win == wins[1]
+
+  if invert then
+    if expand then
+      vim.cmd("resize -5")
+    else
+      vim.cmd("resize +5")
+    end
+  else
+    if expand then
+      vim.cmd("resize +5")
+    else
+      vim.cmd("resize -5")
+    end
+  end
+end
+
+-- Window keymaps
+vim.keymap.set("n", "<C-l>", function()
+  -- Bob Martin wouldn't like this (sorry)
+  resize_horizonally(true)
+end, { desc = "Shrink a window horizontally" })
+
+vim.keymap.set("n", "<C-h>", function()
+  resize_horizonally(false)
+end, { desc = "Expand a window horizontally" })
+
+vim.keymap.set("n", "<C-k>", function()
+  resize_vertically(true)
+end, { desc = "Shrink a window vertically" })
+
+vim.keymap.set("n", "<C-j>", function()
+  resize_vertically(false)
+end, { desc = "Expand a window vertically" })
