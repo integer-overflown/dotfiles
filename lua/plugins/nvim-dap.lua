@@ -206,56 +206,12 @@ local function configure_defaults()
   end, { desc = "Close DAP UI" })
 end
 
-local dap_ui_options = {
-  layouts = {
-    {
-      elements = {
-        {
-          id = "scopes",
-          size = 0.25,
-        },
-        {
-          id = "breakpoints",
-          size = 0.25,
-        },
-        {
-          id = "stacks",
-          size = 0.25,
-        },
-        {
-          id = "watches",
-          size = 0.25,
-        },
-      },
-      position = "left",
-      size = 40,
-    },
-    {
-      elements = {
-        {
-          id = "repl",
-          size = 1,
-        },
-      },
-      position = "bottom",
-      size = 10,
-    },
-  },
-}
-
 return {
   {
     "mfussenegger/nvim-dap",
     dependencies = {
       -- Runs preLaunchTask / postDebugTask if present
-      { "stevearc/overseer.nvim" },
-      {
-        "rcarriga/nvim-dap-ui",
-        dependencies = { "nvim-neotest/nvim-nio" },
-        config = true,
-        opts = dap_ui_options,
-      },
-      { "theHamsta/nvim-dap-virtual-text", config = true },
+      { "theHamsta/nvim-dap-virtual-text", config = true, lazy = true },
     },
     config = function()
       -- Start loading the config asynchronously
