@@ -5,11 +5,6 @@ vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find f
 vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
 vim.keymap.set("n", "<leader>vh", builtin.help_tags, { desc = "Show and search help" })
 
--- Utility keymaps
-vim.keymap.set("n", "<leader>fp", function()
-  vim.cmd("let @+=@%")
-end, { desc = "Copy current file path to the system clipboard" })
-
 vim.keymap.set("n", "<F1>", ":help <C-r><C-w><cr>", { desc = "Show help for a word under the cursor" })
 
 -- Neo-tree keymaps
