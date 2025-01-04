@@ -9,3 +9,6 @@ require("config.lazy")
 
 -- Configure keyboard maps, now that all plugins are accessible
 require("config.keymaps")
+
+-- Configure extensions specific to this config (various custom keymaps, overrides, windows, pickers, etc.)
+require("extensions")
