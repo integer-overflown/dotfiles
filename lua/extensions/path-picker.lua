@@ -23,22 +23,22 @@ local function confirm_selection(result, out_reg)
     return
   end
 
-  local reg = out_reg or "@"
+  local reg = out_reg or '"'
 
   vim.fn.setreg(reg, result)
 
-  if out_reg then
+  if out_reg and out_reg ~= '"' then
     print("Picked", result, "to", out_reg)
   else
     print("Picked", result)
   end
 end
 
-local function pick_path(type)
+local function pick_path(type, out_reg)
   local path = vim.fn.getreg("%")
   local result = get_path(path, type)
 
-  confirm_selection(result)
+  confirm_selection(result, out_reg)
 end
 
 local function open_path_picker(out_reg)
@@ -85,18 +85,21 @@ end
 
 vim.api.nvim_create_user_command("PickPath", function(cmd)
   -- the function is nil-safe, so we're fine if no args were passed
-  open_path_picker(cmd.fargs[1])
+  open_path_picker(cmd.reg)
 end, {
   desc = "Open file path picker",
-  nargs = "?",
+  register = true,
 })
 
-vim.keymap.set("n", "<leader>fp<cr>", open_path_picker, { desc = "Open file path picker" })
+vim.keymap.set("n", "<leader>fp<cr>", function()
+  open_path_picker(vim.v.register)
+end, { desc = "Open file path picker" })
 
+-- can use a register form, e.g. "+<leader>fpa will copy the path to the + register
 vim.keymap.set("n", "<leader>fpa", function()
-  pick_path("absolute")
+  pick_path("absolute", vim.v.register)
 end, { desc = "Pick an absolute path to the current file" })
 
 vim.keymap.set("n", "<leader>fpr", function()
-  pick_path("relative")
+  pick_path("relative", vim.v.register)
 end, { desc = "Pick an absolute path to the current file" })
