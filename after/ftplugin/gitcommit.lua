@@ -47,8 +47,17 @@ nio.run(function()
   local message = string.gsub(message_template, "%$task", task)
 
   vim.schedule(function()
-    vim.api.nvim_buf_set_lines(0, 0, 1, true, { message })
-    vim.cmd("startinsert!")
+    local lines = vim.api.nvim_buf_get_lines(0, 0, 1, true)
+    assert(#lines > 0)
+
+    -- don't overwrite the contents if there is already a message
+    -- (for example, when amending, rebasing or merging)
+    -- git leaves the first line empty for user's message if one is required,
+    -- so we can rely on its length.
+    if #lines[1] == 0 then
+      vim.api.nvim_buf_set_lines(0, 0, 1, true, { message })
+      vim.cmd("startinsert!")
+    end
   end)
 
   process.close()
