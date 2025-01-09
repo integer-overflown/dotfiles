@@ -66,16 +66,12 @@ local function configure_adapters()
 
   log.debug("Configuring adapters")
 
-  local ports = {
-    code_lldb = require("utils.ports").get_codelldb_port(),
-  }
-
   dap.adapters.codelldb = {
     type = "server",
-    port = ports.code_lldb,
+    port = "${port}",
     executable = {
       command = "codelldb",
-      args = { "--port", ports.code_lldb },
+      args = { "--port", "${port}" },
     },
   }
 end
