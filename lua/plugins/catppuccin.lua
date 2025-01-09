@@ -8,7 +8,7 @@ return {
 
     local opts = {
       transparent_background = true,
-      show_end_of_buffer = true,
+      show_end_of_buffer = false,
     }
 
     theme.setup(opts)
