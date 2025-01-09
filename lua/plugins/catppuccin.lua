@@ -15,5 +15,14 @@ return {
 
     -- Set the default color scheme
     vim.cmd([[colorscheme catppuccin-macchiato]])
+
+    local dn = require("dark_notify")
+
+    dn.run({
+      schemes = {
+        dark = "catppuccin-macchiato",
+        light = "catppuccin-latte",
+      },
+    })
   end,
 }
