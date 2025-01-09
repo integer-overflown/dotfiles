@@ -1,12 +1,27 @@
-local options = { "absolute", "relative" }
+local options = {
+  "absolute",
+  "basename",
+  "directory",
+  "relative directory",
+  "relative",
+}
 
 local function get_path(path, type)
   local pickers = {
-    ["absolute"] = function()
+    absolute = function()
       return vim.fn.fnamemodify(path, ":p")
     end,
-    ["relative"] = function()
-      return vim.fn.fnamemodify(path, ":.")
+    relative = function()
+      return vim.fn.fnamemodify(path, ":~:.")
+    end,
+    directory = function()
+      return vim.fn.fnamemodify(path, ":p:h")
+    end,
+    basename = function()
+      return vim.fn.fnamemodify(path, ":p:t")
+    end,
+    ["relative directory"] = function()
+      return vim.fn.fnamemodify(path, ":.:h")
     end,
   }
 
@@ -28,7 +43,7 @@ local function confirm_selection(result, out_reg)
   vim.fn.setreg(reg, result)
 
   if out_reg and out_reg ~= '"' then
-    print("Picked", result, "to", out_reg)
+    print("Picked", result, "to", string.format('"%s', out_reg))
   else
     print("Picked", result)
   end
@@ -102,4 +117,8 @@ end, { desc = "Pick an absolute path to the current file" })
 
 vim.keymap.set("n", "<leader>fpr", function()
   pick_path("relative", vim.v.register)
+end, { desc = "Pick an absolute path to the current file" })
+
+vim.keymap.set("n", "<leader>fpn", function()
+  pick_path("basename", vim.v.register)
 end, { desc = "Pick an absolute path to the current file" })
