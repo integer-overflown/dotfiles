@@ -206,28 +206,78 @@ local function configure_defaults()
   end, { desc = "Close DAP UI" })
 end
 
+local dap_ui_layouts = {
+  {
+    elements = {
+      {
+        id = "scopes",
+        size = 0.25,
+      },
+      {
+        id = "breakpoints",
+        size = 0.25,
+      },
+      {
+        id = "stacks",
+        size = 0.25,
+      },
+      {
+        id = "watches",
+        size = 0.25,
+      },
+    },
+    position = "left",
+    size = 40,
+  },
+  {
+    elements = {
+      {
+        id = "repl",
+        size = 1,
+      },
+    },
+    position = "bottom",
+    size = 10,
+  },
+}
+
+local function on_select_window()
+  return require("window-picker").pick_window()
+end
+
+local function configure_dap()
+  -- Start loading the config asynchronously
+  -- TODO: revisit this, now that logging is async
+  require("utils.config").load_config()
+
+  local nio = require("nio")
+
+  nio.run(function()
+    configure_adapters()
+  end)
+
+  configure_keymaps()
+  configure_events()
+  configure_defaults()
+end
+
 return {
   {
     "mfussenegger/nvim-dap",
     dependencies = {
       -- Runs preLaunchTask / postDebugTask if present
       { "theHamsta/nvim-dap-virtual-text", config = true, lazy = true },
+      {
+        "rcarriga/nvim-dap-ui",
+        dependencies = { "nvim-neotest/nvim-nio" },
+        config = true,
+        opts = {
+          layouts = dap_ui_layouts,
+          select_window = on_select_window,
+        },
+      },
     },
-    config = function()
-      -- Start loading the config asynchronously
-      -- TODO: revisit this, now that logging is async
-      require("utils.config").load_config()
-
-      local nio = require("nio")
-
-      nio.run(function()
-        configure_adapters()
-      end)
-
-      configure_keymaps()
-      configure_events()
-      configure_defaults()
-    end,
+    config = configure_dap,
   },
   {
     "jay-babu/mason-nvim-dap.nvim",
