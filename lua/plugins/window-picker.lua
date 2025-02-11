@@ -25,7 +25,7 @@ return {
           -- if the file type is one of following, the window will be ignored
           filetype = filetype_filters,
           -- if the buffer type is one of following, the window will be ignored
-          buftype = { "terminal", "quickfix" },
+          buftype = { "terminal", "quickfix", "nofile" },
         },
       },
     })
