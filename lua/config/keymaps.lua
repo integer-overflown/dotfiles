@@ -11,10 +11,26 @@ vim.keymap.set("n", "<leader>vh", builtin.help_tags, { desc = "Show and search h
 vim.keymap.set("n", "<F1>", ":help <C-r><C-w><cr>", { desc = "Show help for a word under the cursor" })
 
 -- Neo-tree keymaps
-vim.keymap.set("n", "<leader>bf", ":Neotree toggle show buffers right<cr>", { desc = "Show currently opened buffers" })
-vim.keymap.set("n", "<leader>s", ":Neotree float git_status<cr>", { desc = "Open git status in a floating window" })
-vim.keymap.set("n", "|", ":Neotree toggle<cr>", { desc = "Toggle neo-tree file view" })
-vim.keymap.set("n", "g|", ":Neotree reveal<cr>", { desc = "Focus on neo-tree file view" })
+vim.keymap.set(
+  "n",
+  "<leader>bf",
+  ":Neotree toggle show buffers right<cr>",
+  { desc = "Show currently opened buffers", silent = true }
+)
+vim.keymap.set(
+  "n",
+  "<leader>bbf",
+  ":Neotree reveal show buffers right focus<cr>",
+  { desc = "Show currently opened buffers", silent = true }
+)
+vim.keymap.set(
+  "n",
+  "<leader>ss",
+  ":Neotree float git_status<cr>",
+  { desc = "Open git status in a floating window", silent = true }
+)
+vim.keymap.set("n", "|", ":Neotree toggle<cr>", { desc = "Toggle neo-tree file view", silent = true })
+vim.keymap.set("n", "g|", ":Neotree reveal<cr>", { desc = "Focus on neo-tree file view", silent = true })
 
 -- LSP keymaps
 vim.api.nvim_create_autocmd("LspAttach", {
