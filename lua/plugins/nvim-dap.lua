@@ -129,8 +129,6 @@ local function get_terminal_buf()
     -- This should trigger on_create() callback
     term:spawn()
 
-    local log = require("utils.log")
-
     vim.api.nvim_create_autocmd("BufWinLeave", {
       buffer = terminal_buf,
       callback = function()
@@ -207,14 +205,11 @@ local function configure_defaults()
   local ui = require("dapui")
 
   vim.api.nvim_create_user_command("DapUiOpen", function(config)
-    local reset = config[1] == "reset" or false
+    local reset = config.bang
     ui.open({ reset = reset })
   end, {
-    nargs = "?",
+    bang = true,
     desc = "Open DAP UI",
-    complete = function()
-      return { "reset" }
-    end,
   })
 
   vim.api.nvim_create_user_command("DapUiClose", function()
