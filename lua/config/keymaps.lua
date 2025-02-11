@@ -32,6 +32,11 @@ vim.keymap.set(
 vim.keymap.set("n", "|", ":Neotree toggle<cr>", { desc = "Toggle neo-tree file view", silent = true })
 vim.keymap.set("n", "g|", ":Neotree reveal<cr>", { desc = "Focus on neo-tree file view", silent = true })
 
+-- Diagnostic keymaps
+vim.keymap.set("n", "<leader>dq", function()
+  vim.diagnostic.setqflist()
+end, { desc = "Open project-wide diagnostic in a quick-fix list" })
+
 -- LSP keymaps
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("UserLspConfig", {}),
