@@ -129,12 +129,32 @@ local function get_terminal_buf()
     -- This should trigger on_create() callback
     term:spawn()
 
+    local log = require("utils.log")
+
+    vim.api.nvim_create_autocmd("BufWinLeave", {
+      buffer = terminal_buf,
+      callback = function()
+        tab_index = -1
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      buffer = terminal_buf,
+      callback = function()
+        tab_index = vim.api.nvim_get_current_tabpage()
+      end,
+    })
+
     vim.keymap.set({ "n", "t" }, "<Leader>lg", function()
       if vim.api.nvim_tabpage_is_valid(tab_index) then
         vim.api.nvim_set_current_tabpage(tab_index)
         return
       end
 
+      term:toggle()
+    end, { desc = "Switch to the debugee process output" })
+
+    vim.keymap.set({ "n", "t" }, "<Leader>lG", function()
       term:toggle()
     end, { desc = "Open the debugee process output" })
 
