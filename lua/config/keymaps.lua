@@ -37,49 +37,6 @@ vim.keymap.set("n", "<leader>dq", function()
   vim.diagnostic.setqflist()
 end, { desc = "Open project-wide diagnostic in a quick-fix list" })
 
--- LSP keymaps
-vim.api.nvim_create_autocmd("LspAttach", {
-  group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-  callback = function(ev)
-    local opts = { buffer = ev.buf }
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-
-    if client.supports_method("textDocument/rename") then
-      vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-    end
-
-    if client.supports_method("textDocument/implementation") then
-      vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-    end
-
-    vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-    vim.keymap.set("n", "gr", function()
-      builtin.lsp_references()
-    end, opts)
-
-    vim.keymap.set({ "n", "i" }, "<c-p>", vim.lsp.buf.signature_help, opts)
-
-    if not client.supports_method("textDocument/formatting") then
-      return
-    end
-
-    local format = function()
-      vim.lsp.buf.format({ bufnr = ev.buf })
-    end
-
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      buffer = ev.buf,
-      callback = format,
-    })
-
-    vim.keymap.set("n", "<leader>ll", function()
-      format()
-    end, opts)
-  end,
-})
-
 vim.keymap.set("n", "<leader>or", ":OverseerRun<cr>", { desc = "Select and run an Overseer task" })
 vim.keymap.set("n", "<leader>ot", ":OverseerToggle<cr>", { desc = "Toggle Overseer task view" })
 
