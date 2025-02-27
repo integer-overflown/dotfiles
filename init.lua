@@ -1,14 +1,8 @@
--- Load globals
-require("config.globals")
+-- Load the user config: set options, keymaps, load plugins
+require("config")
 
--- Configure global vim options
-require("config.options")
-
--- Load Lazy and the plugins
-require("config.lazy")
-
--- Configure keyboard maps, now that all plugins are accessible
-require("config.keymaps")
-
--- Configure extensions specific to this config (various custom keymaps, overrides, windows, pickers, etc.)
+-- Configure extensions specific to this config, such as:
+-- custom actions
+-- user commands
+-- Telescope extensions: custom pickers, themes, etc.
 require("extensions")
