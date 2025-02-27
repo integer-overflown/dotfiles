@@ -47,7 +47,9 @@ return {
     },
     filesystem = {
       use_libuv_file_watcher = true,
-      follow_current_file = true,
+      follow_current_file = {
+        enabled = true
+      },
     },
     commands = {
       ["navigate_to_parent"] = navigate_to_parent,
