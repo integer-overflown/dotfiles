@@ -69,11 +69,8 @@ local function get_fold(lnum)
 end
 
 _G.get_statuscol = function()
-    local line_count = vim.fn.line("$")
-    local count_len = math.ceil(math.log(line_count, 10))
-    local padding = count_len
-
-    return "%" .. padding .. "l%s" .. get_fold(vim.v.lnum) .. "│"
+    return "%s%l " .. get_fold(vim.v.lnum) .. " "
 end
 
+vim.opt.signcolumn = "yes:1"
 vim.o.statuscolumn = "%!v:lua.get_statuscol()"
