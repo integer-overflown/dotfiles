@@ -24,7 +24,7 @@ local function on_lsp_attach(event)
   end
 
   local format = function()
-    vim.lsp.buf.format({ bufnr = event.buf })
+    require("conform").format({ bufnr = event.buf, lsp_format = "fallback" })
   end
 
   vim.api.nvim_create_autocmd("BufWritePre", {
