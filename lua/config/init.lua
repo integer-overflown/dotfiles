@@ -15,3 +15,6 @@ require("config.folds")
 
 -- Configure keyboard maps, now that all plugins are accessible
 require("config.keymaps")
+
+-- Configure spellcheck
+require("config.spellcheck")
