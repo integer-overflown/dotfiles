@@ -1,6 +1,5 @@
 local function navigate_to_parent(state)
   local node = state.tree:get_node()
-  print(vim.inspect(node))
 
   local parent_node = node:get_parent_id()
 
@@ -10,6 +9,25 @@ local function navigate_to_parent(state)
 
   local path = state.tree:get_node(parent_node):get_id()
   require("neo-tree.sources.filesystem").navigate(state, state.path, path)
+end
+
+local function reveal_in_file_explorer(state)
+  local node = state.tree:get_node()
+  local path
+
+  if node.type == "directory" then
+    path = node.path
+  else
+    local parent_node = node:get_parent_id()
+
+    if parent_node then
+      path = parent_node
+    end
+  end
+
+  if path then
+    vim.ui.open(path)
+  end
 end
 
 -- install neo-tree
@@ -33,6 +51,7 @@ return {
     },
     commands = {
       ["navigate_to_parent"] = navigate_to_parent,
+      ["reveal_in_file_explorer"] = reveal_in_file_explorer,
     },
     window = {
       mappings = {
@@ -41,6 +60,7 @@ return {
         ["v"] = "vsplit_with_window_picker",
         ["s"] = "split_with_window_picker",
         ["K"] = "navigate_to_parent",
+        ["R"] = "reveal_in_file_explorer",
       },
     },
   },
