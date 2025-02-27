@@ -28,6 +28,7 @@ return {
       follow_cursor = true,
     },
     filesystem = {
+      use_libuv_file_watcher = true,
       follow_current_file = true,
     },
     commands = {
