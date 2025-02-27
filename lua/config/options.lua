@@ -33,9 +33,47 @@ vim.opt.inccommand = "split"
 
 -- Highlight when yanking (copying) text
 vim.api.nvim_create_autocmd("TextYankPost", {
-  desc = "Highlight when yanking text",
-  group = vim.api.nvim_create_augroup("ovf-highlight-yank", { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
+    desc = "Highlight when yanking text",
+    group = vim.api.nvim_create_augroup("ovf-highlight-yank", { clear = true }),
+    callback = function()
+        vim.highlight.on_yank()
+    end,
 })
+
+vim.opt.fillchars = { foldopen = "▶", foldclose = "▼", foldsep = "│" }
+
+local function get_fold(lnum)
+    local fcs = vim.opt.fillchars:get()
+
+    if vim.fn.foldlevel(lnum) == 0 then
+        return ' '
+    end
+
+    -- we're inside an unfolded fold
+    if vim.fn.foldlevel(lnum) == vim.fn.foldlevel(lnum - 1) then
+        return fcs.foldsep
+    end
+
+    local is_closed_fold = vim.fn.foldclosed(lnum) >= 0
+    local is_fold_boundary = vim.fn.foldlevel(lnum) >= vim.fn.foldlevel(lnum - 1)
+
+    if is_fold_boundary then
+        if is_closed_fold then
+            return fcs.foldopen
+        else
+            return fcs.foldclose
+        end
+    end
+
+    return fcs.foldsep
+end
+
+_G.get_statuscol = function()
+    local line_count = vim.fn.line("$")
+    local count_len = math.ceil(math.log(line_count, 10))
+    local padding = count_len
+
+    return "%" .. padding .. "l%s" .. get_fold(vim.v.lnum) .. "│"
+end
+
+vim.o.statuscolumn = "%!v:lua.get_statuscol()"
