@@ -58,7 +58,25 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "gr", function()
       builtin.lsp_references()
     end, opts)
+
     vim.keymap.set({ "n", "i" }, "<c-p>", vim.lsp.buf.signature_help, opts)
+
+    if not client.supports_method("textDocument/formatting") then
+      return
+    end
+
+    local format = function()
+      vim.lsp.buf.format({ bufnr = ev.buf })
+    end
+
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      buffer = ev.buf,
+      callback = format,
+    })
+
+    vim.keymap.set("n", "<leader>ll", function()
+      format()
+    end, opts)
   end,
 })
 
