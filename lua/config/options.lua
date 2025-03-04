@@ -69,7 +69,7 @@ local function get_fold(lnum)
 end
 
 _G.get_statuscol = function()
-    return "%s%l " .. get_fold(vim.v.lnum) .. " "
+    return "%s%{v:relnum?v:relnum:v:lnum}" .. " %=" .. get_fold(vim.v.lnum) .. " "
 end
 
 vim.opt.signcolumn = "yes:1"
