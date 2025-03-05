@@ -73,6 +73,8 @@ _G.get_statuscol = function()
     local number = vim.api.nvim_win_get_option(win_id, "number")
     local relnum = vim.api.nvim_win_get_option(win_id, "relativenumber")
 
+    if not number then return "" end
+
     local line_no = ""
     if number then
         if relnum then
