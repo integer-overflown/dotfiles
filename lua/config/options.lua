@@ -84,7 +84,7 @@ _G.get_statuscol = function()
         end
     end
 
-    return "%s" .. line_no .. " %=" .. get_fold(vim.v.lnum) .. " "
+    return "%s" .. line_no .. " %=" .. (get_fold(vim.v.lnum) or "") .. " "
 end
 
 vim.opt.signcolumn = "yes:1"

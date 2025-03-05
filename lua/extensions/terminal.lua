@@ -6,14 +6,6 @@ local M = {
   _last_buf = -1,
 }
 
-local function create_window()
-  vim.cmd [[split]]
-  vim.cmd [[wincmd J]]
-  vim.api.nvim_win_set_height(0, 10)
-
-  return vim.api.nvim_get_current_win()
-end
-
 --- Create Harpoon list item for a given terminal buffer
 local function create_item(bufnr)
   assert(bufnr)
@@ -67,7 +59,7 @@ function M.toggle_term(opts)
   if vim.api.nvim_win_is_valid(M._win_id) then
     vim.api.nvim_set_current_win(M._win_id)
   else
-    M._win_id = create_window()
+    M._win_id = require("extensions.terminal.window").create_window()
   end
 
   -- Buffer is provided explicitly
