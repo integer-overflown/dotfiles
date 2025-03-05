@@ -69,10 +69,13 @@ local function get_fold(lnum)
 end
 
 _G.get_statuscol = function()
-    local line_no = ""
+    local win_id = vim.g.statusline_winid
+    local number = vim.api.nvim_win_get_option(win_id, "number")
+    local relnum = vim.api.nvim_win_get_option(win_id, "relativenumber")
 
-    if vim.wo.number then
-        if vim.wo.relativenumber then
+    local line_no = ""
+    if number then
+        if relnum then
             line_no = "%=%{v:relnum?v:relnum:v:lnum}"
         else
             line_no = "%{v:lnum}"
