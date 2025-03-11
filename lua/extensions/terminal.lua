@@ -45,6 +45,8 @@ end
 
 --- @class ToggleTermOpts window options
 --- @field bufnr integer buffer to show; overrides the default buffer selection algorithm
+--- @field group string terminal group; each group has a dedicated Harpoon list and configuration
+--- @field strategy string how to open the terminal window (split, floating, etc.)
 
 --- Toggle a general-purpose terminal window.
 --- By default, it shows the last accessed terminal buffer.
@@ -59,8 +61,10 @@ function M.toggle_term(opts)
   if vim.api.nvim_win_is_valid(M._win_id) then
     vim.api.nvim_set_current_win(M._win_id)
   else
-    M._win_id = require("extensions.terminal.window").create_window()
+    M._win_id = require("extensions.terminal.window").create_window(opts.strategy or "float")
   end
+
+  local group = opts.group or "term"
 
   -- Buffer is provided explicitly
   if opts.bufnr and vim.api.nvim_buf_is_valid(opts.bufnr) then
@@ -75,7 +79,7 @@ function M.toggle_term(opts)
       -- If unset, create a new one and remember it
       M._last_buf = create_buffer()
 
-      require("harpoon"):list("term"):add(create_item(M._last_buf))
+      require("harpoon"):list(group):add(create_item(M._last_buf))
     end
   end
 
@@ -88,5 +92,44 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 vim.keymap.set("n", "<leader>tt", M.toggle_term, {})
+
+vim.api.nvim_create_user_command("Term", function(args)
+  print(args.name, vim.inspect(args.args))
+
+  local opts = {}
+
+  for k, v in string.gmatch(args.args, "(%w+)=(%w+)") do
+    opts[k] = v
+  end
+
+  M.toggle_term(opts)
+end, {
+  nargs = "*",
+  complete = function(lead)
+    local arg_names = { "group=", "strategy=" }
+    local completion_items = {
+      ["strategy="] = require("extensions.terminal.window").available_strategies(),
+      ["group="] = {}
+    }
+
+    local cat = function(lead, args)
+      local res = {}
+
+      for i, arg in ipairs(args) do
+        res[i] = lead .. arg
+      end
+
+      return res
+    end
+
+    for item, completions in pairs(completion_items) do
+      if string.find(lead, item) then
+        return cat(item, completions)
+      end
+    end
+
+    return arg_names
+  end
+})
 
 return M

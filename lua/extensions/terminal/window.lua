@@ -53,6 +53,11 @@ local function create_float()
   return win
 end
 
+local strategies = {
+  split = create_split,
+  float = create_float
+}
+
 ---@alias CreateWindowStrategy
 --- | "split" # horizonal split, a small window at the bottom of the editor
 --- | "float" # a floating window, centered at the editor boundaries
@@ -72,14 +77,19 @@ end
 function M.create_window(opts)
   opts = opts or {}
 
-  local strategies = {
-    split = create_split,
-    float = create_float
-  }
-
   local strategy = strategies[opts.strategy] or strategies.split
 
   return strategy()
+end
+
+function M.available_strategies()
+  local names = {}
+
+  for key, _ in pairs(strategies) do
+    table.insert(names, key)
+  end
+
+  return names
 end
 
 return M
