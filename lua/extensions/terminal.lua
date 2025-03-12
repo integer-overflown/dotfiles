@@ -1,41 +1,8 @@
 --- @class TerminalConfig module configuration and state
---- @field _win_id integer terminal window identifier
---- @field _last_buf integer last accessed terminal buffer; used when reopening a term window
+--- @field _groups TerminalGroup[] active terminal groups
 local M = {
-  _win_id = -1,
-  _last_buf = -1,
+  _groups = {}
 }
-
---- Create Harpoon list item for a given terminal buffer
-local function create_item(bufnr)
-  assert(bufnr)
-
-  return {
-    value = bufnr,
-    context = {
-    }
-  }
-end
-
-local function create_buffer()
-  vim.cmd.term()
-
-  local bufnr = vim.api.nvim_get_current_buf()
-
-  vim.api.nvim_create_autocmd("BufDelete", {
-    buffer = bufnr,
-    callback = function(args)
-      local log = require("utils.log")
-      local harpoon = require("harpoon")
-
-      log.debug("term: buf delete: ", args.buf)
-
-      harpoon:list("term"):remove(create_item(args.buf))
-    end
-  })
-
-  return bufnr
-end
 
 local function on_term_open()
   vim.opt.number = false
@@ -54,36 +21,20 @@ end
 --- When a terminal is created, it is added to a harpoon "term" list.
 --- The list can the be used to navigate the terminal.
 ---
---- @param opts ToggleTermOpts options (nullable)
-function M.toggle_term(opts)
+--- @param opts ToggleTermOpts? options
+function M:toggle_term(opts)
   opts = opts or {}
 
-  if vim.api.nvim_win_is_valid(M._win_id) then
-    vim.api.nvim_set_current_win(M._win_id)
-  else
-    M._win_id = require("extensions.terminal.window").create_window(opts.strategy or "float")
+  local group_name = opts.group or "term"
+  local TerminalGroup = require("extensions.terminal.group").TerminalGroup
+
+  if self._groups[group_name] == nil then
+    self._groups[group_name] = TerminalGroup:new(group_name)
   end
 
-  local group = opts.group or "term"
+  local group = self._groups[group_name]
 
-  -- Buffer is provided explicitly
-  if opts.bufnr and vim.api.nvim_buf_is_valid(opts.bufnr) then
-    M._last_buf = opts.bufnr
-
-    vim.api.nvim_win_set_buf(0, opts.bufnr)
-  else
-    -- Try opening the last accessed terminal first
-    if vim.api.nvim_buf_is_valid(M._last_buf) then
-      vim.api.nvim_win_set_buf(0, M._last_buf)
-    else
-      -- If unset, create a new one and remember it
-      M._last_buf = create_buffer()
-
-      require("harpoon"):list(group):add(create_item(M._last_buf))
-    end
-  end
-
-  vim.cmd [[startinsert!]]
+  group:open_terminal({ strategy = opts.strategy })
 end
 
 vim.api.nvim_create_autocmd("TermOpen", {
@@ -91,7 +42,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
   callback = on_term_open
 })
 
-vim.keymap.set("n", "<leader>tt", M.toggle_term, {})
+vim.keymap.set("n", "<leader>tt", function() M:toggle_term() end, {})
 
 vim.api.nvim_create_user_command("Term", function(args)
   print(args.name, vim.inspect(args.args))
@@ -102,7 +53,7 @@ vim.api.nvim_create_user_command("Term", function(args)
     opts[k] = v
   end
 
-  M.toggle_term(opts)
+  M:toggle_term(opts)
 end, {
   nargs = "*",
   complete = function(lead)
@@ -130,6 +81,12 @@ end, {
 
     return arg_names
   end
+})
+
+require("extensions.terminal.group").init({
+  default_strategy = "float",
+  group_configs = {
+  }
 })
 
 return M
