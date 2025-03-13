@@ -1,7 +1,15 @@
 local builtin = require("telescope.builtin")
 
 -- Utils
-vim.keymap.set("n", "<leader><leader>x", ":source<cr>", { desc = "Source the current file" })
+vim.keymap.set("n", "<leader><leader>x", function()
+  local path = vim.api.nvim_buf_get_name(0)
+
+  if path == "" then
+    vim.cmd [[source]]
+  else
+    vim.cmd [[source %]]
+  end
+end, { desc = "Source the current file" })
 
 -- Telescope keymaps
 vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
