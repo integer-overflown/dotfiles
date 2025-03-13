@@ -37,7 +37,7 @@ local function on_term_open()
 end
 
 --- @class ToggleTermOpts window options
---- @field bufnr integer buffer to show; overrides the default buffer selection algorithm
+--- @field buffer integer buffer to show; overrides the default buffer selection algorithm
 --- @field group string terminal group; each group has a dedicated Harpoon list and configuration
 --- @field strategy string? how to open the terminal window (split, floating, etc.)
 --- @field new boolean? create a new terminal, instead of opening the existing one
@@ -61,7 +61,7 @@ function M:toggle_term(opts)
 
   local group = self._groups[group_name]
 
-  group:toggle_terminal({ strategy = opts.strategy, new = opts.new })
+  group:toggle_terminal({ strategy = opts.strategy, new = opts.new, buffer = opts.buffer })
 end
 
 function M:toggle_group(name)

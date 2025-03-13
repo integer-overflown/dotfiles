@@ -1,9 +1,11 @@
 --- @class GroupEvents
---- @field buf_opened fun() fired when a buffer is presented in a window
+--- @field terminal_opened fun(group: TerminalGroup, buf: integer) fired when a buffer is presented in a window
+--- @field buffer_entered fun(buf: integer) fired when a buffer is displayed in a window
 
 --- @class GroupConfig
---- @field create_buf fun(): integer create a terminal buffer
 --- @field strategy string? default strategy to use (split, float, etc.); if nil, follow the global strategy from ModuleConfig
+--- @field create_buffer fun(): integer create an empty buffer
+--- @field open_terminal fun() open terminal in the current buffer
 --- @field events GroupEvents event handlers
 
 --- @class ModuleConfig
@@ -34,10 +36,8 @@ local HARPOON_CONFIG = {
     assert(false, "default create_list_item unexpectedly reached")
   end,
   select = function(list_item)
-    print("select", vim.inspect(list_item))
-
     local manager = require("extensions.terminal.manager")
-    manager:toggle_term({ bufnr = list_item.value, group = list_item.context.group_name })
+    manager:toggle_term({ buffer = list_item.value, group = list_item.context.group_name })
   end,
   equals = function(lhs_item, rhs_item)
     if lhs_item == nil and rhs_item == nil then
@@ -58,12 +58,29 @@ local HARPOON_CONFIG = {
 --- @type GroupConfig
 local DEFAULT_CONFIG = {
   strategy = nil,
-  create_buf = function()
-    vim.cmd.term()
-    return vim.api.nvim_get_current_buf()
+  create_buffer = function()
+    return vim.api.nvim_create_buf(false, false)
+  end,
+  open_terminal = function()
+    vim.fn.termopen(vim.o.shell)
   end,
   events = {
-    buf_opened = function()
+    terminal_opened = function(group, buf)
+      vim.keymap.set({ "n", "t" }, "<c-n>", function()
+        print("next")
+        group:_get_harpoon_list():next()
+      end, {
+        buffer = buf
+      })
+
+      vim.keymap.set({ "n", "t" }, "<c-p>", function()
+        print("prev")
+        group:_get_harpoon_list():prev()
+      end, {
+        buffer = buf
+      })
+    end,
+    buffer_entered = function()
       vim.cmd [[startinsert!]]
     end
   }
@@ -151,37 +168,64 @@ function TerminalGroup:_remove_terminal(buf)
   self:_get_harpoon_list():remove(item)
 end
 
---- @class OpenTerminalOpts
+--- @class ToggleTerminalOpts
 --- @field strategy string? strategy to use; if nil, the module-config default will be used
 --- @field new boolean? create a new terminal in this group and open it; if false or absent the first terminal will be accessed
+--- @field buffer integer? buffer ID
 
 --- Open the last accessed terminal from this group
 ---
 --- If no terminal is in the group, a new one will be created, regardless of the opts.new setting.
 ---
---- @param opts OpenTerminalOpts? options
+--- @param opts ToggleTerminalOpts? options
 function TerminalGroup:toggle_terminal(opts)
   opts = opts or {}
 
   local strategy = opts.strategy or self._config.strategy or M.config.default_strategy
-  local create_new = opts.new == true -- must be a boolean of value true; nil|false will fail the equality check
 
   if not vim.api.nvim_win_is_valid(self._win_id) then
     self._win_id = require("extensions.terminal.window").create_window({ strategy = strategy })
   end
 
   local win = self._win_id
-  local item = self:_get_harpoon_list():get(1)
-  local buf = item and item.value
+  local buf
 
-  if buf == nil or create_new then
-    buf = self._config.create_buf()
+  if opts.buffer and vim.api.nvim_buf_is_valid(opts.buffer) then
+    buf = opts.buffer
+  else
+    local item = self:_get_harpoon_list():get(1)
+    buf = item and item.value
+  end
+
+  local create_new = buf == nil or opts.new == true
+
+  if create_new then
+    buf = self._config.create_buffer()
+
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      buffer = buf,
+      callback = function(args)
+        log.trace("buffer entered: buf", args.buf, "group", self._name)
+        self._config.events.buffer_entered(args.buf)
+      end
+    })
+
+    vim.api.nvim_create_autocmd("TermOpen", {
+      buffer = buf,
+      callback = function(args)
+        log.trace("terminal opened: buf", args.buf, "group", self._name)
+        self._config.events.terminal_opened(self, args.buf)
+      end
+    })
+
     self:_add_terminal(buf)
   end
 
   vim.api.nvim_win_set_buf(win, buf)
 
-  self._config.events.buf_opened()
+  if create_new then
+    self._config.open_terminal()
+  end
 end
 
 function TerminalGroup:toggle_list()

@@ -3,8 +3,6 @@ local manager = require("extensions.terminal.manager")
 vim.keymap.set("n", "<leader>tt", function() manager:toggle_term() end, {})
 
 vim.api.nvim_create_user_command("Term", function(args)
-  print(args.name, vim.inspect(args.args))
-
   local opts = {}
 
   for k, v in string.gmatch(args.args, "(%w+)=(%w+)") do
