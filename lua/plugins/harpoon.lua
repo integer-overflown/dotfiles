@@ -5,40 +5,7 @@ return {
   config = function()
     local harpoon = require("harpoon")
 
-    harpoon:setup({
-      term = {
-        -- don't persist the state on disk
-        encode = false,
-        create_list_item = function()
-          return {
-            value = vim.api.nvim_get_current_buf(),
-            context = {
-            }
-          }
-        end,
-        select = function(list_item)
-          if list_item == nil then
-            return
-          end
-
-          require("extensions.terminal").toggle_term(list_item.value)
-        end,
-        equals = function(lhs_item, rhs_item)
-          if lhs_item == nil and rhs_item == nil then
-            return true
-          end
-
-          if lhs_item == nil or rhs_item == nil then
-            return false
-          end
-
-          return lhs_item.value == rhs_item.value
-        end,
-        display = function(list_item)
-          return vim.api.nvim_buf_get_name(list_item.value)
-        end
-      }
-    })
+    harpoon:setup()
 
     vim.keymap.set("n", "<leader>a", function()
       harpoon:list():add()
