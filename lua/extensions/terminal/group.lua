@@ -40,6 +40,7 @@ local DEFAULT_CONFIG = {
     return vim.api.nvim_get_current_buf()
   end,
   harpoon = {
+    encode = false,
     create_list_item = function(bufnr)
       return {
         value = bufnr,
@@ -105,6 +106,10 @@ function TerminalGroup:new(name)
     _last_buf = -1,
     _config = config
   }, self)
+end
+
+function TerminalGroup:_new_from_data(data)
+  return setmetatable(data, self)
 end
 
 function TerminalGroup:_get_harpoon_list()

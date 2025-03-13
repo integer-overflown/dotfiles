@@ -77,7 +77,7 @@ local strategies = {
 function M.create_window(opts)
   opts = opts or {}
 
-  local strategy = strategies[opts.strategy] or strategies.split
+  local strategy = opts.strategy and strategies[opts.strategy] or strategies.split
 
   return strategy()
 end
