@@ -1,13 +1,9 @@
---- @class HarpoonMethods
---- @field create_list_item fun(buf: integer): { value: integer, context: table } create_item function
-
 --- @class GroupEvents
 --- @field buf_opened fun() fired when a buffer is presented in a window
 
 --- @class GroupConfig
 --- @field create_buf fun(): integer create a terminal buffer
 --- @field strategy string? default strategy to use (split, float, etc.); if nil, follow the global strategy from ModuleConfig
---- @field harpoon HarpoonMethods harpoon2 configuration
 --- @field events GroupEvents event handlers
 
 --- @class ModuleConfig
@@ -32,6 +28,33 @@ local TerminalGroup = {}
 
 TerminalGroup.__index = TerminalGroup
 
+local HARPOON_CONFIG = {
+  encode = false,
+  create_list_item = function()
+    assert(false, "default create_list_item unexpectedly reached")
+  end,
+  select = function(list_item)
+    print("select", vim.inspect(list_item))
+
+    local manager = require("extensions.terminal.manager")
+    manager:toggle_term({ bufnr = list_item.value, group = list_item.context.group_name })
+  end,
+  equals = function(lhs_item, rhs_item)
+    if lhs_item == nil and rhs_item == nil then
+      return true
+    end
+
+    if lhs_item == nil or rhs_item == nil then
+      return false
+    end
+
+    return lhs_item.value == rhs_item.value
+  end,
+  display = function(list_item)
+    return vim.api.nvim_buf_get_name(list_item.value)
+  end
+}
+
 --- @type GroupConfig
 local DEFAULT_CONFIG = {
   strategy = nil,
@@ -39,33 +62,6 @@ local DEFAULT_CONFIG = {
     vim.cmd.term()
     return vim.api.nvim_get_current_buf()
   end,
-  harpoon = {
-    encode = false,
-    create_list_item = function(bufnr)
-      return {
-        value = bufnr,
-        context = {
-        }
-      }
-    end,
-    select = function(list_item)
-      print("TODO")
-    end,
-    equals = function(lhs_item, rhs_item)
-      if lhs_item == nil and rhs_item == nil then
-        return true
-      end
-
-      if lhs_item == nil or rhs_item == nil then
-        return false
-      end
-
-      return lhs_item.value == rhs_item.value
-    end,
-    display = function(list_item)
-      return vim.api.nvim_buf_get_name(list_item.value)
-    end
-  },
   events = {
     buf_opened = function()
       vim.cmd [[startinsert!]]
@@ -90,7 +86,7 @@ function TerminalGroup:new(name)
   local config = vim.tbl_deep_extend("keep", get_group_config(name), DEFAULT_CONFIG)
 
   local harpoon = require("harpoon")
-  local partial_config = { [name] = config.harpoon }
+  local partial_config = { [name] = HARPOON_CONFIG }
   harpoon.config = require("harpoon.config").merge_config(partial_config, harpoon.config)
 
   for _, existing_config in pairs(harpoon.lists) do
@@ -116,13 +112,22 @@ function TerminalGroup:_get_harpoon_list()
   return require("harpoon"):list(self._name)
 end
 
+function TerminalGroup:_create_harpoon_item(buf)
+  return {
+    value = buf,
+    context = {
+      group_name = self._name
+    }
+  }
+end
+
 --- Add a terminal buffer to the group
 ---
 --- The buffer will automatically be removed when deleted.
 ---
 --- @param buf integer the terminal buffer
 function TerminalGroup:_add_terminal(buf)
-  local item = self._config.harpoon.create_list_item(buf)
+  local item = self:_create_harpoon_item(buf)
 
   log.trace("Adding buffer", buf, "to group", self._name)
 
@@ -141,7 +146,7 @@ end
 --- Remove a terminal buffer from the group
 --- @param buf integer terminal buffer
 function TerminalGroup:_remove_terminal(buf)
-  local item = self._config.harpoon.create_list_item(buf)
+  local item = self:_create_harpoon_item(buf)
 
   self:_get_harpoon_list():remove(item)
 end
