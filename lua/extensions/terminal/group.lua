@@ -121,7 +121,7 @@ end
 --- The buffer will automatically be removed when deleted.
 ---
 --- @param buf integer the terminal buffer
-function TerminalGroup:add_terminal(buf)
+function TerminalGroup:_add_terminal(buf)
   local item = self._config.harpoon.create_list_item(buf)
 
   log.trace("Adding buffer", buf, "to group", self._name)
@@ -131,16 +131,16 @@ function TerminalGroup:add_terminal(buf)
     callback = function(args)
       log.debug("term: buf delete:", args.buf)
 
-      self:remove_terminal(buf)
+      self:_remove_terminal(buf)
     end
   })
 
-  self:_get_harpoon_list():add(item)
+  self:_get_harpoon_list():prepend(item)
 end
 
 --- Remove a terminal buffer from the group
 --- @param buf integer terminal buffer
-function TerminalGroup:remove_terminal(buf)
+function TerminalGroup:_remove_terminal(buf)
   local item = self._config.harpoon.create_list_item(buf)
 
   self:_get_harpoon_list():remove(item)
@@ -148,13 +148,18 @@ end
 
 --- @class OpenTerminalOpts
 --- @field strategy string? strategy to use; if nil, the module-config default will be used
+--- @field new boolean? create a new terminal in this group and open it; if false or absent the first terminal will be accessed
 
 --- Open the last accessed terminal from this group
+---
+--- If no terminal is in the group, a new one will be created, regardless of the opts.new setting.
+---
 --- @param opts OpenTerminalOpts? options
-function TerminalGroup:open_terminal(opts)
+function TerminalGroup:toggle_terminal(opts)
   opts = opts or {}
 
   local strategy = opts.strategy or self._config.strategy or M.config.default_strategy
+  local create_new = opts.new == true -- must be a boolean of value true; nil|false will fail the equality check
 
   if not vim.api.nvim_win_is_valid(self._win_id) then
     self._win_id = require("extensions.terminal.window").create_window({ strategy = strategy })
@@ -164,9 +169,9 @@ function TerminalGroup:open_terminal(opts)
   local item = self:_get_harpoon_list():get(1)
   local buf = item and item.value
 
-  if buf == nil then
+  if buf == nil or create_new then
     buf = self._config.create_buf()
-    self:add_terminal(buf)
+    self:_add_terminal(buf)
   end
 
   vim.api.nvim_win_set_buf(win, buf)
@@ -174,7 +179,7 @@ function TerminalGroup:open_terminal(opts)
   self._config.events.buf_opened()
 end
 
-function TerminalGroup:open_list()
+function TerminalGroup:toggle_list()
   local harpoon = require("harpoon")
   harpoon.ui:toggle_quick_menu(harpoon:list(self._name))
 end

@@ -39,7 +39,8 @@ end
 --- @class ToggleTermOpts window options
 --- @field bufnr integer buffer to show; overrides the default buffer selection algorithm
 --- @field group string terminal group; each group has a dedicated Harpoon list and configuration
---- @field strategy string how to open the terminal window (split, floating, etc.)
+--- @field strategy string? how to open the terminal window (split, floating, etc.)
+--- @field new boolean? create a new terminal, instead of opening the existing one
 
 --- Toggle a general-purpose terminal window.
 --- By default, it shows the last accessed terminal buffer.
@@ -60,7 +61,7 @@ function M:toggle_term(opts)
 
   local group = self._groups[group_name]
 
-  group:open_terminal({ strategy = opts.strategy })
+  group:toggle_terminal({ strategy = opts.strategy, new = opts.new })
 end
 
 function M:toggle_group(name)
@@ -71,7 +72,7 @@ function M:toggle_group(name)
     return
   end
 
-  group:open_list()
+  group:toggle_list()
 end
 
 vim.api.nvim_create_autocmd("TermOpen", {
@@ -90,21 +91,23 @@ vim.api.nvim_create_user_command("Term", function(args)
     opts[k] = v
   end
 
+  opts.new = args.bang
+
   M:toggle_term(opts)
 end, {
   nargs = "*",
+  bang = true,
   complete = function(lead)
-    local arg_names = { "group=", "strategy=" }
     local completion_items = {
       ["strategy="] = require("extensions.terminal.window").available_strategies(),
-      ["group="] = {}
+      ["group="] = vim.tbl_keys(M._groups)
     }
 
-    local cat = function(lead, args)
+    local cat = function(start, args)
       local res = {}
 
       for i, arg in ipairs(args) do
-        res[i] = lead .. arg
+        res[i] = start .. arg
       end
 
       return res
@@ -116,7 +119,7 @@ end, {
       end
     end
 
-    return arg_names
+    return vim.tbl_keys(completion_items)
   end
 })
 
