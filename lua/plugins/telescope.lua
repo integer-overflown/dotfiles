@@ -1,7 +1,6 @@
 -- install telescope plugin
 return {
   "nvim-telescope/telescope.nvim",
-  tag = "0.1.8",
   dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
     local telescope = require("telescope")
@@ -15,6 +14,12 @@ return {
             ["<C-s>"] = actions.select_horizontal,
             ["<C-x>"] = false,
             ["<C-v>"] = actions.select_vertical,
+            ["<C-h>"] = actions.preview_scrolling_left,
+            ["<C-l>"] = actions.preview_scrolling_right,
+            ["<C-f>"] = nil,
+            ["<Down>"] = actions.cycle_history_next,
+            ["<Up>"] = actions.cycle_history_prev,
+            ["<C-k>"] = nil,
           },
           n = {
             ["<C-s>"] = actions.select_horizontal,
