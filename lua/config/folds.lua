@@ -29,5 +29,6 @@ vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
     vim.opt.foldlevel = get_buffer_fold_level(event.buf)
     vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
     vim.opt.foldmethod = "expr"
+    vim.opt.foldenable = false
   end
 })
