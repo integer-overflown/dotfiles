@@ -158,40 +158,6 @@ local function get_terminal_buf()
 
     assert(nio.api.nvim_buf_is_valid(terminal_buf), "buffer must be created after :spawn()")
 
-    local conf = require("utils.config")
-    local highlight = conf.read_field(conf.load_config().wait(), "table", "logging", "highlights")
-
-    -- Derived from CurSearch
-    vim.cmd("highlight LogErrorMessage guifg=#1e2030 guibg=#ed8796")
-
-    if highlight then
-      vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter", "TermEnter" }, {
-        buffer = terminal_buf,
-        desc = "ToggleTerm highlight setup for logging",
-        callback = function()
-          local e = function(part, value)
-            vim.notify("Invalid " .. part .. ": " .. vim.inspect(value), vim.log.levels.ERROR)
-          end
-
-          for group_name, pattern in pairs(highlight) do
-            if type(group_name) ~= "string" then
-              e("group_name", group_name)
-              goto continue
-            end
-
-            if type(pattern) ~= "string" then
-              e("pattern", pattern)
-              goto continue
-            end
-
-            vim.fn.matchadd(group_name, pattern)
-
-            ::continue::
-          end
-        end,
-      })
-    end
-
     return terminal_buf
   end
 
@@ -257,10 +223,6 @@ local function on_select_window()
 end
 
 local function configure_dap()
-  -- Start loading the config asynchronously
-  -- TODO: revisit this, now that logging is async
-  require("utils.config").load_config()
-
   local nio = require("nio")
 
   nio.run(function()
