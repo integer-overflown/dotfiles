@@ -89,3 +89,6 @@ end
 
 vim.opt.signcolumn = "yes:1"
 vim.o.statuscolumn = "%!v:lua.get_statuscol()"
+
+-- Enable project-local config files
+vim.o.exrc = true
