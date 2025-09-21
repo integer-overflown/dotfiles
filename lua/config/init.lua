@@ -18,3 +18,6 @@ require("config.keymaps")
 
 -- Configure spellcheck
 require("config.spellcheck")
+
+-- Configure snippets
+require("config.snippets")
