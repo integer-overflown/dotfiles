@@ -58,7 +58,17 @@ return {
   "hrsh7th/nvim-cmp",
   config = configure_cmp,
   dependencies = {
-    { "L3MON4D3/LuaSnip", version = "v2.*" },
+    {
+      "L3MON4D3/LuaSnip",
+      config = function()
+        require("luasnip.loaders.from_vscode").lazy_load()
+      end,
+      version = "v2.*",
+      dependencies = {
+        "rafamadriz/friendly-snippets",
+      }
+    },
+    "saadparwaiz1/cmp_luasnip",
     "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-nvim-lua",
     "hrsh7th/cmp-buffer",
