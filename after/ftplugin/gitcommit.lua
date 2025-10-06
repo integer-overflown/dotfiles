@@ -10,6 +10,7 @@ if #lines[1] > 0 then
 end
 
 local nio = require("nio")
+local Project = require("utils.config").Project
 
 local function get_task_id()
   -- Strategy 1: env variable
@@ -48,8 +49,7 @@ local function get_task_id()
 
   process.close()
 
-  local conf = require("utils.config")
-  local task_template = conf.read_field(conf.load_config().wait(), "string", "git", "task_template")
+  local task_template = Project:read_field("string", "git", "task_template")
 
   if not task_template then
     return
@@ -59,10 +59,8 @@ local function get_task_id()
 end
 
 nio.run(function()
-  local conf = require("utils.config")
-
   local task_id = get_task_id()
-  local message_template = conf.read_field(conf.load_config().wait(), "string", "git", "message_template")
+  local message_template = Project:read_field("string", "git", "message_template")
 
   if not (task_id and message_template) then
     -- There's no data to auto-fill, but let's save pressing a single letter and

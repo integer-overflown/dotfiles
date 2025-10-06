@@ -1,95 +1,35 @@
-local M = {}
+local M = {
+}
 
-local config_future
+local Project = {
+}
 
----@class LoggingHighlight a highlight setting for matching tokens, see vim.fn.matchadd
----@field group_name string a vim highlight group name (see :highlight)
----@field pattern string a pattern to be highlighted, in vim format, see :h search-pattern
----@see vim.fn.matchadd
-
----@class LoggingConfig
----@field highlights LoggingHighlight[]
+M.Project = Project
 
 ---@class GitConfig
 ---@field task_template string ($task) Task ID pattern, expressed as a Lua pattern.
 ---@field message_template string Git message template. Can use $variables from GitConfig
----@class UserConfig
----@field logging LoggingConfig
+---@class ProjectConfig
 ---@field git GitConfig
 
---Lua language server does not seem to allow linking to nio.control.Future directly
----@class Future nio future, see nio.control.Future
----@field wait fun() wait for the completion, returning the result
-
--- internal function: always called from the main thread
--- this allows using vimscript functions before entering an async context
-function do_load_config()
-  local nio = require("nio")
-  local cwd = vim.fn.getcwd()
-
-  local config_dir = cwd .. "/nvim"
-
-  nio.run(function()
-    local log_conf = config_dir .. "/init.lua"
-    local file = nio.file.open(log_conf, "r")
-
-    if not file then
-      config_future.set({})
-      return
-    end
-
-    local content = file.read(nil, 0)
-    local mod_func, error = load(content)
-
-    local e = function(message)
-      config_future.set_error(message)
-
-      vim.schedule(function()
-        vim.notify(message, vim.log.levels.ERROR)
-      end)
-    end
-
-    if not mod_func then
-      e("Failed to load the project-local config: " .. error)
-      return
-    end
-
-    local mod = mod_func()
-
-    if type(mod) ~= "table" then
-      e("Config JSON must be an object")
-      return
-    end
-
-    config_future.set(mod)
-  end)
-end
-
----Asynchronously load a project-local user config.
----The config is a Lua table returned by an entry-point script,
----which must be located at <cwd>/nvim/init.lua.
----Thus, it's assumed that nvim is started from the project workspace root.
+---Set project config to the provided table
 ---
----The loading and parsing happens once, when the function is first called.
+---This function is expected to be used in conjunction with nvim's exrc feature,
+---which is enabled for this config.
 ---
----Each subsequent invocation will return a cached future.
+---Project-local config should call this function to configure the specifics of
+---nvim behavior for this project.
 ---
----This allows accessing the config from any script, as well as starting the
----config loading in advance.
----
----@return Future # a nio future to UserConfig
----@see UserConfig
-M.load_config = function()
-  if config_future then
-    return config_future
+---@param config ProjectConfig config table
+function Project:set_config(config)
+  local log = require("utils.log")
+
+  if self._config ~= nil then
+    log.debug("Overriding project config")
   end
 
-  local nio = require("nio")
-  config_future = nio.control.future()
-
-  vim.schedule(do_load_config)
-
-  return config_future
+  log.debug("Set project config to", config)
+  self._config = config
 end
 
 ---Read a config field, potentially nested in sub-config objects.
@@ -103,7 +43,14 @@ end
 ---@param config table a config table, acquired from load_config().wait()
 ---@param field_type string required field type
 ---@param ... string a list of keys
-M.read_field = function(config, field_type, ...)
+function Project:read_field(field_type, ...)
+  local config = self._config
+
+  if config == nil then
+    require("utils.log").warn("Project config is not set")
+    return
+  end
+
   for _, key in ipairs({ ... }) do
     config = config[key]
 
