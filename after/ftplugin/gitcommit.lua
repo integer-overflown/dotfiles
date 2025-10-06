@@ -51,10 +51,8 @@ local function get_task_id()
 
   process.close()
 
-  local task_template = Project:read_field("string", "git", "task_template")
-  local opts = Project:read_field("table", "git", "format_opts")
-
-  opts = opts or {}
+  local task_template = Project:read_field("string", { "git", "task_template" })
+  local opts = Project:read_field("table", { "git", "format_opts" })
 
   log.debug("task_template: ", task_template, "opts", opts)
 
@@ -66,7 +64,7 @@ local function get_task_id()
 
   log.debug("match returned: ", match)
 
-  if match and (opts.capitalize or false) then
+  if match and opts.capitalize then
     match = string.upper(match)
   end
 
@@ -75,7 +73,7 @@ end
 
 nio.run(function()
   local task_id = get_task_id()
-  local message_template = Project:read_field("string", "git", "message_template")
+  local message_template = Project:read_field("string", { "git", "message_template" })
 
   if not (task_id and message_template) then
     -- There's no data to auto-fill, but let's save pressing a single letter and

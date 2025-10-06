@@ -10,11 +10,20 @@ M.Project = Project
 ---@field capitalize boolean capitalize letters in the task ID
 
 ---@class GitConfig
----@field task_template string ($task) Task ID pattern, expressed as a Lua pattern.
----@field message_template string Git message template. Can use $variables from GitConfig
+---@field task_template string? ($task) Task ID pattern, expressed as a Lua pattern.
+---@field message_template string? Git message template. Can use $variables from GitConfig
 ---@field format_opts FormatOpts task formatting options
 ---@class ProjectConfig
 ---@field git GitConfig
+
+---@type ProjectConfig
+local DEFAULT_CONFIG = {
+  git = {
+    format_opts = {
+      capitalize = false,
+    }
+  },
+}
 
 ---Set project config to the provided table
 ---
@@ -33,21 +42,22 @@ function Project:set_config(config)
   end
 
   log.debug("Set project config to", config)
-  self._config = config
+  self._config = vim.tbl_deep_extend("keep", config, DEFAULT_CONFIG)
 end
 
----Read a config field, potentially nested in sub-config objects.
----The function behaves as follows: for each variadic argument k set config to config[k].
----This repeats until all keys are processed, in which case the final value is returned,
----or breaks early if at any iteration config becomes nil, returning nil from the function.
+---Read a config field
 ---
----The function also does type validation based on field_type parameter.
----If the requested field exists, but is of a wrong type, nil is returned.
+---Each member in the key array nests into the config structure; see key_spec param description for
+---more info.
 ---
----@param config table a config table, acquired from load_config().wait()
+---If the keys point to a value, it's returned.
+---If the value is found, but is on an incorrect type, nil is returned
+---
 ---@param field_type string required field type
----@param ... string a list of keys
-function Project:read_field(field_type, ...)
+---@param key_spec table config key spec, effectively means config[key[0]][key[1]]...[key[n]]
+---
+---@return any|nil value
+function Project:read_field(field_type, key_spec)
   local config = self._config
 
   if config == nil then
@@ -55,7 +65,7 @@ function Project:read_field(field_type, ...)
     return
   end
 
-  for _, key in ipairs({ ... }) do
+  for _, key in ipairs(key_spec) do
     config = config[key]
 
     -- Explicit comparison against nil is used to ensure that we get nil,
@@ -69,7 +79,7 @@ function Project:read_field(field_type, ...)
   local actual = type(config)
 
   if actual ~= field_type then
-    local pretty_name = table.concat({ ... }, ".")
+    local pretty_name = table.concat(key_spec, ".")
 
     -- Async-friendly notification
     vim.schedule(function()
