@@ -13,6 +13,8 @@ local nio = require("nio")
 local Project = require("utils.config").Project
 
 local function get_task_id()
+  local log = require("utils.log")
+
   -- Strategy 1: env variable
   local env_task = os.getenv("TASK")
 
@@ -50,12 +52,25 @@ local function get_task_id()
   process.close()
 
   local task_template = Project:read_field("string", "git", "task_template")
+  local opts = Project:read_field("table", "git", "format_opts")
+
+  opts = opts or {}
+
+  log.debug("task_template: ", task_template, "opts", opts)
 
   if not task_template then
     return
   end
 
-  return string.match(branch_name, task_template)
+  local match = string.match(branch_name, task_template)
+
+  log.debug("match returned: ", match)
+
+  if match and (opts.capitalize or false) then
+    match = string.upper(match)
+  end
+
+  return match
 end
 
 nio.run(function()

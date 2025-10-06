@@ -6,9 +6,13 @@ local Project = {
 
 M.Project = Project
 
+---@class FormatOpts
+---@field capitalize boolean capitalize letters in the task ID
+
 ---@class GitConfig
 ---@field task_template string ($task) Task ID pattern, expressed as a Lua pattern.
 ---@field message_template string Git message template. Can use $variables from GitConfig
+---@field format_opts FormatOpts task formatting options
 ---@class ProjectConfig
 ---@field git GitConfig
 
