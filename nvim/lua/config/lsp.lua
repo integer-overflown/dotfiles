@@ -18,23 +18,6 @@ local function on_lsp_attach(event)
   end, opts)
 
   vim.keymap.set({ "n", "i" }, "<c-p>", vim.lsp.buf.signature_help, opts)
-
-  if not client.supports_method("textDocument/formatting") then
-    return
-  end
-
-  local format = function()
-    require("conform").format({ bufnr = event.buf, lsp_format = "fallback" })
-  end
-
-  vim.api.nvim_create_autocmd("BufWritePre", {
-    buffer = event.buf,
-    callback = format,
-  })
-
-  vim.keymap.set("n", "<leader>ll", function()
-    format()
-  end, opts)
 end
 
 -- LSP keymaps
