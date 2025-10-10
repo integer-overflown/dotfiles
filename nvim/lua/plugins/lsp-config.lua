@@ -12,13 +12,8 @@ return {
   {
     "neovim/nvim-lspconfig",
     config = function()
-      local lspconfig = require("lspconfig")
-
-      -- setup lua_ls (Lua LSP)
-      lspconfig.lua_ls.setup({})
-
       -- setup clangd (C/C++/ObjC/ObjC++ support)
-      lspconfig.clangd.setup({
+      vim.lsp.config.clangd = {
         cmd = {
           "clangd",
           "--background-index",
@@ -26,10 +21,7 @@ return {
           "--header-insertion=iwyu",
           "--completion-style=bundled",
         },
-      })
-
-      -- setup rust_analyzer (Rust LSP)
-      lspconfig.rust_analyzer.setup({})
+      }
 
       -- switching between .h/{.c,.cpp}
       vim.keymap.set(
@@ -38,8 +30,6 @@ return {
         ":ClangdSwitchSourceHeader<CR>",
         { desc = "Switch to corresponding C/C++ header/source file" }
       )
-
-      lspconfig.cmake.setup({})
     end,
   },
 }
