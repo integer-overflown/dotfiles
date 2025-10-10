@@ -41,7 +41,7 @@ return {
   },
   config = true,
   opts = {
-    sources = { "filesystem", "buffers", "git_status", "document_symbols" },
+    sources = { "filesystem", "buffers", "git_status" },
     document_symbols = {
       follow_cursor = true,
     },
