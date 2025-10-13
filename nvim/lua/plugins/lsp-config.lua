@@ -27,7 +27,7 @@ return {
       vim.keymap.set(
         "n",
         "<leader>sh",
-        ":ClangdSwitchSourceHeader<CR>",
+        ":LspClangdSwitchSourceHeader<CR>",
         { desc = "Switch to corresponding C/C++ header/source file" }
       )
     end,
