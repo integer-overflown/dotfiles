@@ -11,6 +11,6 @@ install:
 	ln -sfT $(PWD)/direnv $(HOME)/.config/direnv
 	./configure-git
 
-clean:
+uninstall:
 	rm $(NVIM_CONFIG_DIR)
 	rm $(TMUX_CONFIG_DIR)
