@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+gal () {
+    git config --global alias.$1 "$2"
+}
+
+gg () {
+    git config --global "$1" "$2"
+}
+
+gal a 'add'
+gal c 'commit'
+gal ca 'commit --all'
+gal cur 'branch --show current'
+gal d 'diff'
+gal ds 'diff --cached'
+gal s 'status'
+gal ss 'status --short'
+gal to 'status'
+gal puff 'pull --ff-only'
+
+gg core.editor nvim
+gg push.autoSetupRemote true
