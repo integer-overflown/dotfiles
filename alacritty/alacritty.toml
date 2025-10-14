@@ -1,0 +1,9 @@
+[general]
+import = ["~/.config/alacritty/themes/themes/nordic.toml"]
+
+[window]
+startup_mode = "Fullscreen"
+
+[font]
+normal = { family = "UbuntuMonoNerdFont" }
+size = 15.0

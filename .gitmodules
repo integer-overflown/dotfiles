@@ -1,3 +1,6 @@
 [submodule "tmux/plugins/tpm"]
 	path = tmux/plugins/tpm
 	url = git@github.com-personal:tmux-plugins/tpm.git
+[submodule "alacritty/themes"]
+	path = alacritty/themes
+	url = git@github.com-personal:alacritty/alacritty-theme.git
