@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if pgrep -x "alacritty" > /dev/null; then
+    wmctrl -xa Alacritty
+else
+    alacritty &
+fi
