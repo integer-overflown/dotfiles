@@ -2,7 +2,7 @@ local function configure_cmp()
   local cmp = require("cmp")
 
   cmp.setup({
-    completion = { completeopt = "menu,menuone" },
+    completion = { completeopt = "menu,menuone", keyword_length = 3 },
 
     snippet = {
       expand = function(args)
@@ -14,8 +14,8 @@ local function configure_cmp()
       ["<C-p>"] = cmp.mapping.select_prev_item(),
       ["<C-n>"] = cmp.mapping.select_next_item(),
       ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-      ["<C-f>"] = cmp.mapping.scroll_docs(4),
-      ["<C-Space>"] = cmp.mapping.complete(),
+      ["<C-u>"] = cmp.mapping.scroll_docs(4),
+      ["<C-c>"] = cmp.mapping.complete(),
       ["<C-e>"] = cmp.mapping.close(),
 
       ["<CR>"] = cmp.mapping.confirm({
@@ -51,6 +51,25 @@ local function configure_cmp()
       { name = "nvim_lua", priority = 9 },
       { name = "path",     priority = 2 },
     },
+  })
+
+  -- `/` cmdline setup.
+  cmp.setup.cmdline('/', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = {
+      { name = 'buffer' }
+    }
+  })
+
+  -- `:` cmdline setup.
+  cmp.setup.cmdline(':', {
+    mapping = cmp.mapping.preset.cmdline(),
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    }),
+    matching = { disallow_symbol_nonprefix_matching = false }
   })
 end
 
