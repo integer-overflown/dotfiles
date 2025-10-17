@@ -10,6 +10,8 @@ local c = ls.choice_node
 local d = ls.dynamic_node
 local r = ls.restore_node
 
+local extras = require("luasnip.extras")
+
 vim.api.nvim_set_keymap("i", "<C-n>", "<Plug>luasnip-next-choice", {})
 vim.api.nvim_set_keymap("s", "<C-n>", "<Plug>luasnip-next-choice", {})
 vim.api.nvim_set_keymap("i", "<C-p>", "<Plug>luasnip-prev-choice", {})
@@ -56,9 +58,19 @@ ls.add_snippets("cpp", {
   get_debug_snippet("info"),
 })
 
-local function reload_snippets()
-  ls.snippets = {}
-  Util.reload("luasnip.snippets")
+ls.add_snippets("cpp", {
+  s("emake", {
+    t("auto *"), extras.rep(1), t " = ", t "gst_element_factory_make(\"", i(1, "element_name"), t "\", ", i(2, "nullptr"),
+    t ");"
+  }),
+  s("eget", {
+    t "g_autoptr(GstElement) ", extras.rep(2), t " = ", t "gst_bin_get_by_name(", i(1, "bin"), t ", ", t '"', i(2,
+    "element_name"), t '"', t ");"
+  }),
+})
+
+local function clear_snippets()
+  require("luasnip").cleanup()
 end
 
-vim.api.nvim_create_user_command("ReloadSnippets", reload_snippets, {})
+vim.api.nvim_create_user_command("ClearSnippets", clear_snippets, {})
