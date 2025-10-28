@@ -11,6 +11,14 @@ local function setup_conform()
     formatters_by_ft = {
       yaml = { "yamlfmt" },
       xml = { "xmlformatter" },
+      toml = { "taplo" }
+    },
+    formatters = {
+      taplo = {
+        cmd = { "taplo" },
+        args = { "format", "-" },
+        stdin = true,
+      }
     }
   })
 
