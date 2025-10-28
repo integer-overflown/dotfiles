@@ -10,3 +10,6 @@ size = 15.0
 
 [terminal]
 shell = { program = "/bin/zsh", args = ["-c", "tmux"] }
+
+[env]
+TERM = "alacritty"
