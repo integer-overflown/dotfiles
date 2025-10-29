@@ -1,3 +1,14 @@
+-- Gitcommit hook
+--
+-- Auto-fills the commit message from a configured template for new commits.
+-- Uses Project configuration API from utils.config, specifically the "git" sub-table.
+--
+-- First, searches for a task number either via an env variable "TASK" or the config key (git.task_template).
+-- Exposes the task ID in "t" registry ("t" for "task"), which can be read via Ctrl-R+t in insert mode or "tp in normal mode.
+--
+-- If message template is configured via git.message_template, auto-fills the message with the template, inserting the task ID
+-- where requested.
+
 local lines = vim.api.nvim_buf_get_lines(0, 0, 1, true)
 assert(#lines > 0)
 
