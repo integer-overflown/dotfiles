@@ -75,18 +75,19 @@ nio.run(function()
   local task_id = get_task_id()
   local message_template = Project:read_field("string", { "git", "message_template" })
 
-  if not (task_id and message_template) then
+  vim.schedule(function()
+    vim.fn.setreg("t", task_id)
+
     -- There's no data to auto-fill, but let's save pressing a single letter and
     -- enter insert mode anyway
-    vim.schedule(function()
-      vim.cmd("startinsert!")
-    end)
-    return
-  end
+    vim.cmd("startinsert!")
 
-  local message = string.gsub(message_template, "%$task", task_id)
+    if not (task_id and message_template) then
+      return
+    end
 
-  vim.schedule(function()
+    local message = string.gsub(message_template, "%$task", task_id)
+
     vim.api.nvim_buf_set_lines(0, 0, 1, true, { message })
     vim.cmd("startinsert!")
   end)
